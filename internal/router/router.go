@@ -11,5 +11,7 @@ func SetupRouter() *gin.Engine {
 
 	r.GET("/users", handler.GetUsers)
 
+	// r.GET("/excel", handler.FetchExcel)
+
 	return r
 }

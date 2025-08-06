@@ -9,6 +9,7 @@ import (
 type Config struct {
 	AppName string `mapstructure:"APP_NAME"`
 	AppPort string `mapstructure:"APP_PORT"`
+	GinMode string `mapstructure:"GIN_MODE"`
 
 	DBHost string `mapstructure:"DB_HOST"`
 	DBPort string `mapstructure:"DB_PORT"`

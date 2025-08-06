@@ -9,11 +9,13 @@ import (
 	"codebase-golang/pkg/database"
 	"codebase-golang/pkg/logger"
 
+	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
 func main() {
 	cfg, err := config.LoadConfig()
+	gin.SetMode(cfg.GinMode)
 	if err != nil {
 		log.Fatalf("Error loading config: %v", err)
 	}
