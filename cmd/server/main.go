@@ -2,32 +2,38 @@ package main
 
 import (
 	"fmt"
+	"log"
 
-	"github.com/miscla/codebase-golang/internal/config"
-	"github.com/miscla/codebase-golang/internal/database"
-	"github.com/miscla/codebase-golang/internal/models"
-	"github.com/miscla/codebase-golang/internal/router"
-	"github.com/miscla/codebase-golang/pkg/logger"
+	"codebase-golang/internal/router"
+	"codebase-golang/pkg/config"
+	"codebase-golang/pkg/database"
+	"codebase-golang/pkg/logger"
+
+	"go.uber.org/zap"
 )
 
 func main() {
-	cfg := config.Load()
-	log := logger.New()
-
-	db, err := database.ConnectPostgres(cfg)
+	cfg, err := config.LoadConfig()
 	if err != nil {
-		log.Fatalf("Database connection failed: %v", err)
+		log.Fatalf("Error loading config: %v", err)
 	}
 
-	if err := db.AutoMigrate(&models.User{}); err != nil {
-		log.Fatalf("AutoMigrate failed: %v", err)
+	logger.Init()
+	defer logger.Sync()
+
+	if err := database.Init(cfg); err != nil {
+		logger.Log.Fatal("Database connection failed", zap.Error(err))
 	}
 
-	r := router.Setup(db, log, cfg)
-
+	r := router.SetupRouter()
 	addr := fmt.Sprintf(":%s", cfg.AppPort)
-	log.Infof("Server running at %s", addr)
+
+	logger.Log.Info("Starting server...",
+		zap.String("app_name", cfg.AppName),
+		zap.String("port", cfg.AppPort),
+	)
+
 	if err := r.Run(addr); err != nil {
-		log.Fatalf("Server failed: %v", err)
+		logger.Log.Fatal("Server failed", zap.Error(err))
 	}
 }
