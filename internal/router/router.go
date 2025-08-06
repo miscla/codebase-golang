@@ -1,17 +1,22 @@
 package router
 
 import (
-	"codebase-golang/internal/handler"
-
 	"github.com/gin-gonic/gin"
+
+	handler "codebase-golang/internal/handler"
+	"codebase-golang/internal/service"
 )
 
-func SetupRouter() *gin.Engine {
+func NewRouter(userSvc *service.UserService) *gin.Engine {
 	r := gin.Default()
 
-	r.GET("/users", handler.GetUsers)
+	userHandler := handler.NewUserHandler(userSvc)
 
-	// r.GET("/excel", handler.FetchExcel)
+	api := r.Group("/api")
+	{
+		api.GET("/users", userHandler.GetAllUsers)
+		api.POST("/users/refresh", userHandler.RefreshUsers) // manual refresh
+	}
 
 	return r
 }
